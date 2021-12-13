@@ -1,0 +1,45 @@
+var buffer = '';
+
+function appendTLV(tag, text)
+{
+    buffer += String.fromCharCode(tag);
+    buffer += String.fromCharCode(text.length);
+    buffer += text;
+}
+
+var businessName = 'No name'
+var businessNameElement = document.getElementById('BusinessName');
+if (businessNameElement != null) businessName = unescape(encodeURIComponent(businessNameElement.innerText))
+
+var vatNumber = '0000000000000'
+var vatNumberElement = document.getElementById('d96d97e8-c857-42c6-8360-443c06a13de9');
+if (vatNumberElement != null) vatNumber = unescape(encodeURIComponent(vatNumberElement.innerText));
+
+var timestamp = new Date().toISOString();
+var timestampElement = document.getElementsByName("Timestamp");
+if (timestampElement.length > 0) timestamp = new Date(parseInt(timestampElement[0].value)).toISOString();
+
+var total = 0;
+var totalElement = document.getElementById('Total');
+if (totalElement != null) total = parseFloat(totalElement.getAttribute('data-value'));
+
+var vat = 0;
+var taxAmounts = document.getElementsByClassName('taxAmount');
+for (i = 0; i < taxAmounts.length; i++) vat += parseFloat(taxAmounts[i].getAttribute('data-value'));
+
+appendTLV('1', businessName);
+appendTLV('2', vatNumber);
+appendTLV('3', timestamp);
+appendTLV('4', total.toFixed(2));
+appendTLV('5', vat.toFixed(2));
+
+document.getElementById('printable-content').innerHTML += '<div id="qrcode" style="padding: 20px"></div>';
+
+new QRCode(document.getElementById("qrcode"), {
+    text: btoa(buffer),
+    width: 128,
+    height: 128,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.L
+});
